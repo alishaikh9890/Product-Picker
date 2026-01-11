@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities'
 
 
 
-const Variant = ({id, title, delVariant, vlength, pro_id, status, offer}) => {
+const Variant = ({id, title, delVariant, vlength, pro_id}) => {
 
 
         const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
@@ -20,12 +20,17 @@ const Variant = ({id, title, delVariant, vlength, pro_id, status, offer}) => {
 
   return (
     <div className='Prod' key={id} style={style}>
-                                        <span ref={setNodeRef} {...attributes} {...listeners} >⋮⋮</span>
+                                        <span ref={setNodeRef} {...attributes} {...listeners} >
+                                            <b className='d-flex me-3'>
+                                                <i class="bi bi-three-dots-vertical text-secondary fw-bold fs-4" style={{width:"9px"}}></i>
+                                                <i class="bi bi-three-dots-vertical text-secondary fw-bold fs-4" style={{width:"9px"}}></i>
+                                            </b>
+                                        </span>
 
                                         <div className='d-flex shadow-input w-75 border position-relative overflow-hidden rounded-pill'>
-                                            <input type='text' value={title} className='rounded-0 form-control border-0 bg-white' disabled placeholder='Select Product' />
+                                            <input type='text' value={title} className='form-control form-control-sm rounded-0  border-0 bg-white' disabled placeholder='Select Product' style={{fontSize:"12px"}} />
                                         </div>
-
+{/* 
                                         {!status ? (
                                             <div>
                                             
@@ -50,13 +55,13 @@ const Variant = ({id, title, delVariant, vlength, pro_id, status, offer}) => {
                                                     </select>
                                                 </div>
                                             </div>
-                                        )}
+                                        )} */}
                                         {
                                             vlength>=2 &&
                                             <div className="">
                                             <span
                                                 onClick={() => delVariant(pro_id, id)}
-                                                className="btn btn-close btn-sm "
+                                                className="btn btn-close btn-sm"
                                             ></span>
                                         </div>
                                         }

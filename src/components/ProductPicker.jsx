@@ -10,83 +10,109 @@ const ProductPicker = ({ show, setShow, handleSelect, handleAdd, select, handleS
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null)
     const [page, setPage] = useState(1)
+    const [debouncedSearch, setDebouncedSearch] = useState(search)
+    const [hasMore, setHasMore] = useState(true)
 
 
     const myRef= useRef(null)
+    const abortCtrlRef = useRef(null)
+    const lastFetchRef = useRef({ search: null, page: null })
   
 
-    const fetchData = async () => {
-        setLoading(true)
+    const fetchData = async (searchTerm, pageNum) => {
+        // avoid duplicate fetches
+        if (lastFetchRef.current.search === searchTerm && lastFetchRef.current.page === pageNum) return
 
-            if(search !== "")
-            {
-                setPage(1)
-            }
+        // abort previous
+        if (abortCtrlRef.current) abortCtrlRef.current.abort()
+        const controller = new AbortController()
+        abortCtrlRef.current = controller
+
+        setLoading(true)
+        lastFetchRef.current = { search: searchTerm, page: pageNum }
 
         try {
-            const res = await fetch(`https://stageapi.monkcommerce.app/task/products/search?search=${search}&page=${page}&limit=10`,
+            const res = await fetch(
+                `https://stageapi.monkcommerce.app/task/products/search?search=${encodeURIComponent(searchTerm)}&page=${pageNum}&limit=10`,
                 {
-                    method: "GET",
+                    method: 'GET',
                     headers: {
-                        "Content-Type": "application/json",
-                        "x-api-key": "72njgfa948d9aS7gs5"
-                    }
+                        'Content-Type': 'application/json',
+                        'x-api-key': '72njgfa948d9aS7gs5'
+                    },
+                    signal: controller.signal
                 }
             )
-            const arr = await res.json();
-          
-            if(search !== "")
-            {
-                arr ? setData(arr) : setData([])
-            }
-            else{
-                arr ? setData(oldArr =>[...oldArr, ...arr]) : setData((oldArr) => oldArr)
-            }
-
-        } catch (error) {
-            console.log(error)
-            setError(error)
+            const arr = await res.json()
+            setData(prev => pageNum === 1 ? (arr || []) : ([...prev, ...(arr || [])]))
+            // if returned items are fewer than limit, no more pages
+            setHasMore(Array.isArray(arr) ? (arr.length === 10) : false)
+        } catch (err) {
+            if (err.name === 'AbortError') return
+            console.error(err)
+            setError(err)
         } finally {
             setLoading(false)
-        }  
+            if (abortCtrlRef.current === controller) abortCtrlRef.current = null
+        }
     }
 
+    // debounce search input
     useEffect(() => {
-        fetchData();
-    }, [search, page])
+        const t = setTimeout(() => setDebouncedSearch(search), 400)
+        return () => clearTimeout(t)
+    }, [search])
+
+    // fetch first page when modal opens or debounced search changes
+    useEffect(() => {
+        if (!show) return
+        setPage(1)
+        setHasMore(true)
+        fetchData(debouncedSearch, 1)
+    }, [debouncedSearch, show])
+
+    // fetch subsequent pages when page increments
+    useEffect(() => {
+        if (!show) return
+        if (page === 1) return
+        fetchData(debouncedSearch, page)
+    }, [page, show, debouncedSearch])
 
 
-    useEffect(()=>{
-        const observer = new IntersectionObserver((param) => {
-            console.log(param)
-            if(param[0].isIntersecting)
-            {
-                observer.unobserve(lastImg)
-                setPage((page) => page+1)
+    useEffect(() => {
+        if (!show) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            const entry = entries[0];
+            if (entry && entry.isIntersecting) {
+                observer.unobserve(entry.target)
+                // prevent triggering while already loading or when no more pages
+                if (!loading && hasMore) {
+                    setPage((p) => p + 1)
+                }
             }
         })
-        const lastImg = document.querySelector(".lastImg:last-child")
 
-        if(!lastImg) return;
+        const lastImg = document.querySelector('.lastImg:last-child')
+        if (lastImg) observer.observe(lastImg)
 
-        observer.observe(lastImg)
-
-
-        return () =>{
-            if(lastImg){
-                observer.unobserve(lastImg)
-            }
-            observer.disconnect();
+        return () => {
+            if (lastImg) observer.unobserve(lastImg)
+            observer.disconnect()
         }
-
-    },[show, page])
+    }, [data, show, loading, hasMore])
   
     
+    const handleClose = () => {
+        setShow(false);
+        setSearch("");
+        setPage(1)
+    }
     
 
     return (
         
-            <Modal size="lg" show={show} onHide={()=>{setShow(false);setSearch("")}} >
+            <Modal size="lg" show={show} onHide={handleClose} >
                 <Modal.Header closeButton className='py-2 px-4'>
                     <Modal.Title className='fs-5' >Select Products</Modal.Title>
                 </Modal.Header>
@@ -96,15 +122,13 @@ const ProductPicker = ({ show, setShow, handleSelect, handleAdd, select, handleS
                 
                 <Modal.Body className='p-0 overflow-auto' id="scroll"  style={{maxHeight:"70vh"}}>
                
-                
                 <ul className='border list-group list-group-flush' >
                 {
-                    loading && search ? (
+                    (loading && search) ? (
                             <Spinner animation="border" variant='primary' size="lg" className='my-5 mx-auto' role="status">
                                  <span className="visually-hidden">Loading...</span>
                             </Spinner>
-                    )
-                        : error ? 
+                    ) : error ? 
                         "someting went wrong" :
                     data.map((ele) =>   (
                         <li  key={ele.id} className='p-0 list-group-item lastImg' ref={myRef} >
@@ -134,7 +158,11 @@ const ProductPicker = ({ show, setShow, handleSelect, handleAdd, select, handleS
                         </li>
                     ))
                 }
-                   
+                {(loading && !search) && (
+                    <Spinner animation="border" variant='primary' size="lg" className='my-5 mx-auto' role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                    )}  
                 </ul>
 
                 </Modal.Body>
@@ -143,7 +171,7 @@ const ProductPicker = ({ show, setShow, handleSelect, handleAdd, select, handleS
                     <Button variant="outline-secondary ms-auto" onClick={() => {setShow(!show); setSearch("")}} >
                         Cancel
                     </Button>
-                    <Button onClick={handleAdd} variant="success" >
+                    <Button onClick={()=>{setSearch(""); handleAdd()}} variant="success" >
                         Add
                     </Button>
                 </Modal.Footer>

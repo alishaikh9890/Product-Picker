@@ -19,7 +19,6 @@ function ProductList() {
     ]);
 
 
-
     const handleAdd = () => {
         let newProd = [...prod];
         let index = prod.findIndex((ele) => ele.id == inputId)
@@ -120,7 +119,6 @@ function ProductList() {
     )
 
     //---- dragable end ----------
-
    
 
     return (
@@ -149,8 +147,6 @@ function ProductList() {
 
 
         </div>
-
-
     );
 }
 

@@ -72,7 +72,12 @@ const Prod = ({ id, status, index, task, addDiscount, delProduct, show, setShow,
         <div style={style}>
             <Stack>
                 <div className='Prod'>
-                    <span ref={setNodeRef} {...attributes} {...listeners}><b>⋮⋮</b></span>
+                    <span ref={setNodeRef} {...attributes} {...listeners}>
+                        <b className='d-flex me-2'>
+                            <i class="bi bi-three-dots-vertical text-secondary fw-bold fs-4" style={{width:"9px"}}></i>
+                            <i class="bi bi-three-dots-vertical text-secondary fw-bold fs-4" style={{width:"9px"}}></i>
+                        </b>
+                    </span>
                     {index + 1}.
                     <div className='d-flex shadow-input w-75 position-relative border px-1' style={{padding:"2px"}}>
                         <input type='text' defaultValue={task.title} className='rounded-0 form-control form-control-sm border-0 bg-white' disabled placeholder='Select Product' />
@@ -83,7 +88,7 @@ const Prod = ({ id, status, index, task, addDiscount, delProduct, show, setShow,
                         <Button
                             onClick={() => addDiscount(id)}
                             variant="success"
-                            className='rounded-1 discount'
+                            className='rounded-0 discount'
                         >
                             Add Discount
                         </Button>
