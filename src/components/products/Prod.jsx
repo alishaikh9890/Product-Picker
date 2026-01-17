@@ -144,7 +144,7 @@ const Prod = ({ id, status, index, task, addDiscount, delProduct, show, setShow,
                         </div>
                         
                         <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCorners}>
-                        <Collapse in={open} >
+                        <Collapse in={open && task.variants.length > 1} >
                             <div>
                              <SortableContext items={task.variants || []} strategy={verticalListSortingStrategy}>
                             {
