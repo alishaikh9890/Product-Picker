@@ -45,18 +45,18 @@ const Prod = ({ id, status, index, task, addDiscount, delProduct, show, setShow,
         if (active.id === over.id) return;
 
             const originalPos = getProdPos(active.id);
-                  const newPos = getProdPos(over.id)
-                  let newVariant = arrayMove(task.variants, originalPos, newPos)
+                const newPos = getProdPos(over.id)
+                let newVariant = arrayMove(task.variants, originalPos, newPos)
 
-                  let newProd = prod.map((ele) => {
-                    if(ele.id==id)
-                    {
-                        ele.task.variants = newVariant
-                    }
+                let newProd = prod.map((ele) => {
+                if(ele.id==id)
+                {
+                    ele.task.variants = newVariant
+                }
                     return ele;
-                  })
+                })
 
-        setProd(newProd)
+            setProd(newProd)
           }
       
           const sensors = useSensors(
@@ -74,13 +74,13 @@ const Prod = ({ id, status, index, task, addDiscount, delProduct, show, setShow,
                 <div className='Prod'>
                     <span ref={setNodeRef} {...attributes} {...listeners}>
                         <b className='d-flex me-2'>
-                            <i class="bi bi-three-dots-vertical text-secondary fw-bold fs-4" style={{width:"9px"}}></i>
-                            <i class="bi bi-three-dots-vertical text-secondary fw-bold fs-4" style={{width:"9px"}}></i>
+                            <i clasName="bi bi-three-dots-vertical text-secondary fw-bold fs-4" style={{width:"9px"}}></i>
+                            <i className="bi bi-three-dots-vertical text-secondary fw-bold fs-4" style={{width:"9px"}}></i>
                         </b>
                     </span>
                     {index + 1}.
                     <div className='d-flex shadow-input w-75 position-relative border px-1' style={{padding:"2px"}}>
-                        <input type='text' defaultValue={task.title} className='rounded-0 form-control form-control-sm border-0 bg-white' disabled placeholder='Select Product' />
+                        <input type='text' value={task.title} className='rounded-0 form-control form-control-sm border-0 bg-white' disabled placeholder='Select Product' />
                         <Button onClick={() => { setShow(!show); setInputId(id) }} style={{ right: "5px", top: "5px" }} variant="light" size="sm"><i className="bi bi-pencil-fill text-success"></i></Button>
                     </div>
 
@@ -124,7 +124,7 @@ const Prod = ({ id, status, index, task, addDiscount, delProduct, show, setShow,
                 <div className='ps-5' style={{transform:"translateY(-10px)"}}>
                     <Stack>
                         <div className='text-end px-4'>
-                       { task.variants && 
+                       {(task.variants && task.variants.length > 1) &&
                         (
                             <small
                             onClick={() => setOpen(!open)}
@@ -136,7 +136,7 @@ const Prod = ({ id, status, index, task, addDiscount, delProduct, show, setShow,
                                  ( 
                                     <span role="button"  ><span className='border-bottom border-primary' >hide variants </span> <i className="bi bi-chevron-down"></i></span>
                                     ) : ( 
-                                     <span role="button"  ><span className="border-bottom border-primary">show variants</span> <i className="bi bi-chevron-up"></i></span>
+                                    <span role="button"  ><span className="border-bottom border-primary">show variants</span> <i className="bi bi-chevron-up"></i></span>
                                 )}
                         </small>
                         )  

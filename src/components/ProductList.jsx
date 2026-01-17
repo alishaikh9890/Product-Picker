@@ -18,51 +18,55 @@ function ProductList() {
         { task: {}, status: false, id: uuidv4() },
     ]);
 
-
     const handleAdd = () => {
         let newProd = [...prod];
-        let index = prod.findIndex((ele) => ele.id == inputId)
-        select.forEach((ele) => {
-            if (newProd[index]) {
-                newProd[index].task = ele
-                index++;
-            }
-            else {
-                newProd[index] = { task: ele, status: false, id: uuidv4() }
-                index++;
-            }
-        })
-        setProd(newProd)
-        setSelect([])
-        setShow(!show)
-    }
+        let index = prod.findIndex(ele => ele.id === inputId);
+
+        if (index === -1) {
+            index = newProd.length;
+        }
+
+        const itemsToAdd = select.map(ele => ({
+            task: ele,
+            status: false,
+            id: uuidv4(),
+        }));
+
+        if (newProd[index]) {
+            newProd.splice(index, 1, itemsToAdd[0], ...itemsToAdd.slice(1));
+        } else {
+            newProd.splice(index, 0, ...itemsToAdd);
+        }
+
+        setProd(newProd);
+        setSelect([]);
+        setShow(prev => !prev);
+    };
 
     const handleSelect = (element) => {
         let newSelect = [...select]
-        let newId = newSelect.some(ele=> ele.id == element.id)
-        newId ? newSelect = newSelect.filter(ele=> ele.id != element.id) : newSelect = [...newSelect, element]
+        let newId = newSelect.some(ele => ele.id === element.id)
+        newId ? newSelect = newSelect.filter(ele=> ele.id !== element.id) : newSelect = [...newSelect, element]
         setSelect(newSelect)
     }
 
     const handleSelectVarent = (product, variant) => {
         let newSelect = [...select]
-          
-        let newProduct = newSelect.find(ele=> ele.id == product.id)
 
-        if(newProduct)
-        {     
-                newProduct.variants.some((el) => el.id==variant.id) 
-                    ?
-                newProduct.variants = newProduct.variants.filter(el=> el.id != variant.id) 
-                    :
-                newProduct.variants.push(variant) 
-                ;
-                
-                newSelect = newSelect.map((ele) => ele.id == product.id ? {...ele, variants: newProduct.variants} : ele)
-        }
-        else
-        {
+        console.log(select)
+          
+        let newProduct = newSelect.find(ele => ele.id === product.id)
+
+        if(newProduct) {     
+            const variantExists = newProduct.variants.some((el) => el.id === variant.id);
+            if (variantExists) {
+                newProduct.variants = newProduct.variants.filter(el => el.id !== variant.id);
+            } else {
+                newProduct.variants.push(variant);
+            }
             
+            newSelect = newSelect.map((ele) => ele.id === product.id ? {...ele, variants: newProduct.variants} : ele)
+        } else {   
             newSelect.push({...product, variants:[variant]})
         }
       
@@ -122,8 +126,6 @@ function ProductList() {
    
 
     return (
-
-
         <div className="App">
             <Container style={{ maxWidth: "768px" }}>
                 <Row className=" my-3 ps-5">
@@ -143,9 +145,7 @@ function ProductList() {
 
             <AddProduct handleProduct={handleProduct} />
 
-            <ProductPicker show={show} setShow={setShow} handleSelect={handleSelect} handleAdd={handleAdd} select={select} handleSelectVarent={handleSelectVarent} />
-
-
+            <ProductPicker show={show} setShow={setShow} setSelect={setSelect} handleSelect={handleSelect} handleAdd={handleAdd} select={select} handleSelectVarent={handleSelectVarent} />
         </div>
     );
 }

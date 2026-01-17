@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import Picker from './picker/Picker';
 
 
-const ProductPicker = ({ show, setShow, handleSelect, handleAdd, select, handleSelectVarent }) => {
+const ProductPicker = ({ show, setShow, setSelect, handleSelect, handleAdd, select, handleSelectVarent }) => {
     const [search, setSearch] = useState("")
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -104,14 +104,14 @@ const ProductPicker = ({ show, setShow, handleSelect, handleAdd, select, handleS
   
     
     const handleClose = () => {
-        setShow(false);
         setSearch("");
-        setPage(1)
+        setPage(1);
+        setSelect([])
+        setShow(false);
     }
     
 
     return (
-        
             <Modal size="lg" show={show} onHide={handleClose} >
                 <Modal.Header closeButton className='py-2 px-4'>
                     <Modal.Title className='fs-5' >Select Products</Modal.Title>
@@ -168,7 +168,7 @@ const ProductPicker = ({ show, setShow, handleSelect, handleAdd, select, handleS
                 </Modal.Body>
                 <Modal.Footer>
                 <p>{select.length} Product Selected</p>
-                    <Button variant="outline-secondary ms-auto" onClick={() => {setShow(!show); setSearch("")}} >
+                    <Button variant="outline-secondary ms-auto" onClick={handleClose} >
                         Cancel
                     </Button>
                     <Button onClick={()=>{setSearch(""); handleAdd()}} variant="success" >
