@@ -74,7 +74,7 @@ const Prod = ({ id, status, index, task, addDiscount, delProduct, show, setShow,
                 <div className='Prod'>
                     <span ref={setNodeRef} {...attributes} {...listeners}>
                         <b className='d-flex me-2'>
-                            <i clasName="bi bi-three-dots-vertical text-secondary fw-bold fs-4" style={{width:"9px"}}></i>
+                            <i className="bi bi-three-dots-vertical text-secondary fw-bold fs-4" style={{width:"9px"}}></i>
                             <i className="bi bi-three-dots-vertical text-secondary fw-bold fs-4" style={{width:"9px"}}></i>
                         </b>
                     </span>
